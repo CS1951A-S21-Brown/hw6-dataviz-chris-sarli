@@ -1,12 +1,212 @@
-.header {
-    padding-bottom: 20px;
-    margin-bottom: 20px;
+body {
+    background-color: #f6f6f6;
 }
 
-.header > h3, h5 {
+.header {
+    padding-bottom: 20px;
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.header>h3,
+h5 {
     margin: 0;
     padding-top: 20px;
     text-align: center;
 }
 
+h3, h4 {
+    text-align: center;
+}
+
+.stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.global-controls {
+    margin-top: 25px;
+    background-color: white;
+    box-sizing: border-box;
+    padding: 10px 30px 10px 30px;
+    width: 500px;
+    border-radius: 6px;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+    padding: 7px;
+    background-color: #eee;
+    border-radius: 4px;
+}
+
+.lab {
+    font-weight: bold;
+}
+
+.val::after {
+    content: ' mins';
+}
+
+#stat_count::after {
+    content: ' movies' !important;
+}
+
+#stat_sum::after {
+    content: ' hrs' !important;
+}
+
 /* Include any custom CSS styling here! */
+
+.flex-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.panel {
+    margin: 10px;
+    padding: 10px 20px 10px 20px;
+}
+
+.panel, .global-controls {
+    background-color: white;
+    box-sizing: border-box;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.15);
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.15);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.15);    
+}
+
+.genre-select {
+    display: grid;
+      grid-template-columns: 60px 1fr;
+      grid-template-rows: 1fr;
+      gap: 5px 5px;
+}
+
+.genre-select label {
+    grid-area: 1 / 1 / 2 / 3;
+}
+
+.genre-select div {
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+#chord-genre-select {
+    max-width: 100%;
+}
+
+#g1 {
+    width: 450px;
+    /* grid-area: g1; */
+}
+
+#g2 {
+    width: 500px;
+    /* grid-area: g2; */
+}
+
+#g3 {
+    width: 350px;
+    /* grid-area: g3; */
+}
+
+#g4 {
+  /* width: 500px; */
+  /* height: 600px; */
+  box-sizing: border-box;
+}
+
+/* #mapdiv {
+  height: 600px;
+} */
+
+#graph1 {
+    margin 0 auto;
+}
+
+.tooltip {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 5px;
+}
+
+.chordt {}
+
+.tooltip ul {
+    margin-left: 0;
+    margin-top: 3px;
+    margin-bottom: 0;
+    padding-left: 18px;
+}
+
+.tooltip li {
+    margin-left: 0px;
+}
+
+.tooltip h5 {
+    text-align: left;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+
+
+.chord-control {
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
+    box-sizing: border-box;
+}
+
+#chord-container {
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.chord {
+    grid-area: chord;
+}
+
+#gslider {
+    margin: 0;
+    margin-top: 10px;
+    padding: 0;
+}
+
+#chord-slide {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#gslider-labels {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.axis text,
+.slider text {
+  font-size: 14px;
+  fill: #444;
+}

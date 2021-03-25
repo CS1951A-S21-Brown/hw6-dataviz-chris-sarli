@@ -2,27 +2,162 @@
 <html lang="en">
 <head>
         <meta charset="utf-8">
-        <title>Assignment 6 &laquo; Data Visualization Dashboard&raquo;</title>
+        <title>Netflix Catalog Dashboard</title>
         <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
         <link rel="stylesheet" href="main.css"/>
         <!--Feel free to add more CSS files as needed-->
         <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+        <script src="https://unpkg.com/d3-simple-slider"></script>
+        <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
     </head>
 <body>
     <div class="header">
-        <h3>Assignment 6 &laquo; Data Visualization Dashboard &raquo;</h3>
+        <div class="global-controls">
+        <h3>Netflix Catalog Dashboard</h3>
+        <p>Mess around with time! Use this slider to travel backwards in time, to explore what the catalog looked like on a given day!</p>
+        <div id="slider"></div>
+        </div>
     </div>
     <!--  We included a basic HTML structure for the 3 graphs here. Feel free to change this if you'd like  -->
-    <div class="row">
-        <div class="col-lg-6">
-            <div id="graph1"></div>
-            <div id="graph2"></div><br/>
+    <div class="flex-container">
+          <div id="g1" class="panel">
+              <h4>Titles per Genre</h4>
+              <div id="graph1"></div>
+          </div>
+          
+          <div id="g3" class="panel gc">
+          <h4>Director-Cast Pairs</h4>
+          <p>This chord diagram shows pairs of directors and actors that have worked together on a recent movie in a selected genre.</p>
+            <div class="chord-control">
+                <div class="genre-select">
+                <label for="genres">Genre:</label>
+                <div>
+                <select name="genres" id="chord-genre-select"></select>
+                </div>
+                </div>
+                <div id="chord-slide">
+                <div><strong>Number of Movies</strong></div>
+                <div>A rough control of how many of the most recent movies in the selected genre to examine.</div>
+                <div id="gslider"></div>
+                <div id="gslider-labels"><div>Less</div><div>More</div></div>
+                </div>
+            </div>
+            <div class="chord" id="chord-container">
+              <div id="graph3"></div>
+            </div>
+            <p style="margin-top: 10px;">Colored ring segments represent directors, gray ring segments represent cast members.</p>
+          </div>
+          <div id="g2" class="panel">
+              <h4>Movie Duration</h4>
+              <p>This panel summarizes the runtimes of movies present in the catalog on the selected day.</p>
+                <h5>Overall Duration Statistics</h5>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="lab">
+                            Count
+                        </div>
+                        <div class="val" id="stat_count">
+                            83.4
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="lab">
+                            Sum
+                        </div>
+                        <div class="val" id="stat_sum">
+                            83.4
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="lab">
+                            Mean
+                        </div>
+                        <div class="val" id="stat_mean">
+                            83.4
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="lab">
+                            Median
+                        </div>
+                        <div class="val" id="stat_median">
+                            83.4
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="lab">
+                            Std. Dev.
+                        </div>
+                        <div class="val" id="stat_dev">
+                            83.4
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="lab">
+                            25<sup>th</sup> Percentile
+                        </div>
+                        <div class="val" id="stat_25">
+                            83.4
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="lab">
+                            75<sup>th</sup> Percentile
+                        </div>
+                        <div class="val" id="stat_75">
+                            83.4
+                        </div>
+                    </div>
+                </div>
+                <h5>Duration by Release Year</h5>
+                <div id="graph2"></div>
+                <p style="margin-top:10px;">Individual points represent individual movies. The solid line represents the mean duration of a given year, and the range between the 25<sup>th</sup> and 75<sup>th</sup> percentiles is shown in the shaded area.</p>
+            </div>
+            <div id="g4" class="panel">
+                <h4>Catalog Production Locations</h4>
+                <p>Where has content in the Netflix Catalog been produced?</p>
+                <svg id="mapdiv"  width="400" height="300"></svg>
+            </div>
+            <div class="panel" style="max-width: 600px; width: auto;">
+                <h4>Written Questions</h4>
+                
+                <ol>
+                    <li>
+                        <ol>
+                        <li>The first question is answered by the &ldquo;Titles per Genre&rdquo; chart. This gives a good overview of how genres compare in size, while not overburdening the user with information about overlap between genres.</li>
+                        <li>The second question is answered by the &ldquo;Movie Duration&rdquo; panel. This panel both present statistics for all movies within the current scope (having been added to Netflix on or before the selected date), and also a chart that includes similar statistics for movie runtime based on movie release year.</li>
+                        <li>The third prompt is addressed by the &ldquo;Director-Cast Pairs&rdquo; panel. This panel provides a chord diagram and some settings to show the relationship between directors and cast members of movies of a given genre. The width of each chord corresponds to the number of movies in which a given director has directed a give cast member. This gives a coarse impression to the user of prolific directors, prolific cast members, and frequent director-cast pairs in a selected genre. The &ldquo;Number of Movies&rdquo; control is a control that is useful at increasing and decreasing the number of movies considered in the diagram. It is necessarily imprecise because the processing logic trims low-frequency directors and cast members from the diagram for visual clarity.</li>
+                        </ol>
+                    </li>
+                    <li>
+                        <ol>
+                        <li>D3 provides a number of builtin utility functions that can make it trivially easy to create or modify visualizations once some initial data processing work is done.</li>
+                        <li>D3 appears to be very performant, which I found to be very helpful because I know for a fact that my implementation is <em>not</em> very efficient. Because D3 itself is fairly efficient, I had to spend less time worrying about performance than I otherwise would have.</li>
+                        <li>D3 is popular enough that it has a fairly rich set of comparable libraries and extensions. For example, I was able to implement the sliders in this dashboard with a minimum of effort because of <a href="https://github.com/johnwalley/d3-simple-slider">a simple library</a>. This allowed me to create a compelling interactive without spending time implementing sliders, which are not novel or inherently valuable to what this dashboard is trying to communicate.</li>
+                        </ol>
+                    </li>
+                    <li>
+                        <ol>
+                        <li>D3 requires writing HTML and JavaScript manually (at least in this implementation), which can add complexity to a project if most data processing and work is being done in something like R or Python. In those cases, <a href="https://holoviz.org">there are tools</a> for creating web-based dashboards directly from those languages.</li>
+                        <li>D3 could be overkill. It seems like an excellent option for web-based interactives or even creating complex static SVGs, but I imagine it could be a lot of overhead if the goal was just to create a simple graphic.</li>
+                        <li>D3 interactives (that I've seen in the past) seem to rely on hovering a cursor a lot (and this dashboard does too.) However, this presents an immediate usability concern for users using touchscreen devices. Additionally, D3 components do not seem to be fully compatible with modern CSS responsiveness techniques, meaning it could be difficult to develop a responsive website that includes complex D3 components.</li>
+                        </ol>
+                    </li>
+                    <li>My dashboard&rsquo;s strong points are that it uses simple titles, descriptive text where appropriate, and good use of font weights to direct the user&rsquo;s attentions. I think I&rsquo;ve done this while managing to minimize clutter, which can often be distracting and make the product hard to use. &ldquo;A Comprehensive Guide to Accessible Data Visualization&rdquo; proposes a &ldquo;5 second test,&rdquo; where visuals can easily be understood and appreciated in 5 seconds or less. I believe that the simple headings and bold graphics in this dashboard accomplish this. &ldquo;Why Accessibility Is at the Heart of Data Visualization&rdquo;  suggests considering how differently-abled users might interact with a visualization&mdash;I&rsquo;ve accomplished this somewhat by including both visual and textual representations of the same data, but this could be enhanced because the textual representations are generally embedded within visual elements, or are not easily discoverable (especially without the use of a cursor).</li>
+                    <li>I could certainly go through my work and add metadata to my visualizations, which are useful for users using screenreaders and other accessibility tools. The main reason I didn't do this is because doing so adds a little bit of friction to the development process, and ignoring it is just so easy to do. Of course, it is not a huge deal to go back and add this in before publishing, but by delaying it the developer risks forgetting or failing to actually implement these metadata. Additionally, I could should provide links or citations to the original data source, because the data is public and encouraging people to do their own analyses on this relatively benign data set is generally good practice. I neglected to do this mainly out of forgetfulness and could easily add it before publishing. Like the previous point, however, this raises the risk of forgetting to actually make this change.</li>
+                </ol>
+            </div>
         </div>
-        <div class="col-lg-6">
-            <div id="graph3"></div>
-        </div>
-    </div>
+    <div id="tooltip"></div>
+    <div id="tooltipChord"></div>
+    <div id="tooltipRing"></div>
+    <div id="tooltipScatter"></div>
+    <div id="tooltipMap"></div>
     <!--Feel free to add more JavaScript files as needed-->
     <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="bar.js"></script>
+    <script type="text/javascript" src="scatter.js"></script>
+    <script type="text/javascript" src="chord.js"></script>
+    <script type="text/javascript" src="map_graph.js"></script>
 </body>
 </html>
