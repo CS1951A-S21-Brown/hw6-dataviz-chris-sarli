@@ -108,21 +108,20 @@ function updateChord(movies, genre, recent) {
 	acts = keep.filter(k => k >= dirs.length).map(k => acts[k - dirs.length])
 	dirs = keep.filter(k => k < dirs.length).map(k => dirs[k])
 	
-	// give this matrix to d3.chord(): it will calculates all the info we need to draw arc and ribbon
+	// From D3 Graphs website
 	res = d3.chord()
-		.padAngle(0.03) // padding between entities (black arc)
-		.sortSubgroups(d3.descending)
+		.padAngle(0.03)
 		(matrix)
 
+	// Remove old
 	svg3.selectAll("g").remove()
 
-	// add the groups on the inner part of the circle
+	// Adapted from D3 Graphs website
 	svg3
 		.datum(res)
 		.append("g")
 		.selectAll("g")
 		.data(function(d) {
-			
 			return d.groups;
 		})
 		.enter()
@@ -149,17 +148,15 @@ function updateChord(movies, genre, recent) {
 		.on("mouseleave", mouseleaveRing)
 
 
-	// Add the links between groups
+	// Adapted from D3 Graphs website
 	svg3
 		.datum(res)
 		.append("g")
 		.selectAll("path")
-		.data(function(d) { return d; })
+		.data(d => d)
 		.enter()
 		.append("path")
-		.attr("d", d3.ribbon()
-			.radius(((chord_height / 2) - ring_width))
-		)
+		.attr("d", d3.ribbon().radius(((chord_height / 2) - ring_width)))
 		.style("fill", d => d3.schemeTableau10[d.source.index % d3.schemeTableau10.length])
 		.style("opacity", 0.1)
 		.on("mouseover", mouseoverChord)
@@ -168,7 +165,6 @@ function updateChord(movies, genre, recent) {
 }
 
 function makeChord(movies) {
-	
 	svg3 = d3.select("#graph3").append("svg")
 	.attr("width", graph_3_width)
 	.attr("height", graph_3_height)
@@ -213,7 +209,7 @@ function makeChord(movies) {
   .style("opacity", 0)
   .attr("class", "tooltip chordt")
 
-// Three function that change the tooltip when user hover / move / leave a cell
+// Adapted from D3 Graphs website
 var mouseoverChord = function(d) {
   ChordTooltip
 	.style("opacity", 1)

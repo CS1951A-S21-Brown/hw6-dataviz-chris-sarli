@@ -60,9 +60,6 @@ function updateBar(data) {
 	.on("mouseover", mouseover)
 	.on("mousemove", mousemove)
 	.on("mouseleave", mouseleave);
-	
-	
-
 }
 
 function makeBar(data) {

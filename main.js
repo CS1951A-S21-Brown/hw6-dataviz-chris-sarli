@@ -63,21 +63,19 @@ d3.csv("data/netflix.csv").then(function(data) {
 
 	genres = [...new Set(data.filter(d => d.type == "Movie").flatMap(d => d.listed_in.split(", ")))]
 
-	// add the options to the button
+	// Adapted from D3 Graphs website
 	d3.select("#chord-genre-select")
-		.selectAll('myOptions')
+		.selectAll('options')
 		.data(genres)
 		.enter()
 		.append('option')
-		.property("selected", function(d){ return d === "Stand-Up Comedy"; })
-		.text(function(d) { return d; }) // text showed in the menu
-		.attr("value", function(d) { return d; }) // corresponding value returned by the button
+		.property("selected", function(d){ return d === "Stand-Up Comedy"; }) // Default
+		.text(d => d)
+		.attr("value", d => d)
 		
-	// When the button is changed, run the updateChart function
+	// Adapted from D3 Graphs website
 	d3.select("#chord-genre-select").on("change", function(d) {
-		// recover the option that has been chosen
 		var selectedOption = d3.select(this).property("value")
-		// run the updateChart function with this selected option
 		updateChordGenre(selectedOption);
 	});
 	
@@ -85,8 +83,9 @@ d3.csv("data/netflix.csv").then(function(data) {
 	makeScatter(movies);
 	makeChord(movies);
 	makeMap(data);
-
 });
+
+
 function updateGraphs(data, date) {
 	data = data.filter(d => d.date_added <= date)
 	updateBar(data);

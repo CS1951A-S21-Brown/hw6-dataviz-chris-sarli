@@ -1,12 +1,14 @@
+// Adapted from D3 Graphs website
 var map_svg = d3.select("#mapdiv"),
-width = +map_svg.attr("width") - 40,
-height = +map_svg.attr("height");
+	width = +map_svg.attr("width") - 40,
+	height = +map_svg.attr("height");
 
 // Map and projection
+// Adapted from D3 Graphs website
 var path = d3.geoPath();
 var projection = d3.geoNaturalEarth()
-.scale(width / 1.3 / Math.PI)
-.translate([width / 2, height / 2])
+	.scale(width / 1.3 / Math.PI)
+	.translate([width / 2, height / 2])
 
 const country_conversions = {
 	"USA": ["United States"],
@@ -36,25 +38,25 @@ function getCount(country) {
 
 function makeMap(data) {
 	countries = data.flatMap(d => d.country.split(",").map(s => s.trim())).filter(d => d.length > 0)
-	
+
 	counts = {}
 	countries.forEach(country => {
 		counts[country] = 1 + (country in counts ? counts[country] : 0)
 	})
-	
-	
+
+	// Adapted from D3 Graphs website
 	d3.json('./data/world.geojson').then(geo => {
 		map_svg.selectAll("path").remove()
-		
+
 		map_svg.append("g")
-		.selectAll("path")
-		.data(geo.features)
-		.enter()
-		.append("path")
+			.selectAll("path")
+			.data(geo.features)
+			.enter()
+			.append("path")
 			.attr("fill", d => {
 				var country = d.properties.name
 				let count = getCount(country)
-				
+
 				if (count > 0) {
 					return "#e50914";
 				}
@@ -73,30 +75,28 @@ function makeMap(data) {
 }
 
 // create a tooltip
-  var TooltipMap = d3.select("#tooltipMap")
+var TooltipMap = d3.select("#tooltipMap")
 	.append("div")
 	.style("opacity", 0)
 	.attr("class", "tooltip")
 
-var tooltipMaxListings = 5
-
-  // Three function that change the tooltip when user hover / move / leave a cell
-  var mouseoverMap = function(d) {
+// Adapted from D3 Graphs website
+var mouseoverMap = function(d) {
 	TooltipMap
-	  .style("opacity", 1)
+		.style("opacity", 1)
 	d3.select(this)
-	  .style("stroke", "#444")
-  }
-  var mousemoveMap = function(d) {
-	  count = getCount(d.properties.name)
+		.style("stroke", "#444")
+}
+var mousemoveMap = function(d) {
+	count = getCount(d.properties.name)
 	TooltipMap
-	  .html(`<div>${count > 0 ? count : "No"} item${count != 1 ? "s" : ""} in the Netflix catalog have been produced in <span style="padding: 1px 3px 1px 3px; border-radius: 4px;color: white; background-color: ${count > 0 ? "#e50914" : "#444"};"><strong>${d.properties.name}</strong></span></div>`)
-	  .style("left", (d3.event.pageX+20) + "px")
-	  .style("top", (d3.event.pageY-20) + "px")
-  }
-  var mouseleaveMap = function(d) {
+		.html(`<div>${count > 0 ? count : "No"} item${count != 1 ? "s" : ""} in the Netflix catalog have been produced in <span style="padding: 1px 3px 1px 3px; border-radius: 4px;color: white; background-color: ${count > 0 ? "#e50914" : "#444"};"><strong>${d.properties.name}</strong></span></div>`)
+		.style("left", (d3.event.pageX + 20) + "px")
+		.style("top", (d3.event.pageY - 20) + "px")
+}
+var mouseleaveMap = function(d) {
 	TooltipMap
-	  .style("opacity", 0)
+		.style("opacity", 0)
 	d3.select(this)
-	  .style("stroke", "#fff")
-  }
+		.style("stroke", "#fff")
+}

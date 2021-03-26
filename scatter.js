@@ -49,17 +49,16 @@ function updateScatter(m) {
 		}
 		runtimes_by_year[parseInt(d.release_year)].push(parseInt(d.duration))
 	})
-	
+
 	let scope_durs = runtimes_years.map(d => d.duration).sort((a, b) => a > b)
-	// scope_durs.sort(d3.quantile(scope_durs, 0.5), d3.quantile(scope_durs, 0.5), d3.median(scope_durs))
 	updateStats(scope_durs)
-	
-	
+
+
 	devs_by_year = {}
 	low_by_year = {}
 	high_by_year = {}
 	countyear = {}
-	
+
 	for (var key in runtimes_by_year) {
 		countyear[key] = runtimes_by_year[key].length
 		dev = d3.deviation(runtimes_by_year[key])
@@ -70,18 +69,18 @@ function updateScatter(m) {
 		high_by_year[key] = d3.quantile(ls, 0.75);
 		runtimes_by_year[key] = d3.mean(runtimes_by_year[key])
 	}
-	
+
 	x2.domain([Math.min(...Object.values(runtimes_years).map(d => d.year)), Math.max(...Object.values(runtimes_years).map(d => d.year))])
-	
+
 	y2.domain([0, Math.max(...Object.values(runtimes_years).map(d => d.duration))])
-	
+
 	scatterLeftAxis.call(d3.axisLeft(y2));
 	scatterBottomAxis.call(d3.axisBottom(x2).tickFormat(d3.format(".0f")));
-	
+
 	svg2.selectAll("circle").remove()
 	svg2.selectAll("path").remove()
-	
-	// Add dots
+
+	// Adapted from D3 Graphs website
 	dots = svg2.append('g')
 		.selectAll("dot")
 		.data(runtimes_years)
@@ -91,30 +90,27 @@ function updateScatter(m) {
 		.attr("cy", d => y2(d.duration))
 		.attr("r", 2)
 		.style("fill", "rgba(135, 206, 235, 0.2)");
-	
+
+	// Adapted from D3 Graphs website
 	svg2.append("path")
-	  .datum(Object.keys(runtimes_by_year))
-	  .attr("fill", "steelblue")
-	  .attr("opacity", 0.2)
-	  .attr("stroke", "none")
-	  .attr("d", d3.area()
-		.x(function(d) { return x2(d) })
-		.y0(function(d) { 
-			// 
-			// 
-			return y2(low_by_year[d]);
-		})
-		.y1(function(d) { return y2(high_by_year[d])})
+		.datum(Object.keys(runtimes_by_year))
+		.attr("fill", "steelblue")
+		.attr("opacity", 0.2)
+		.attr("stroke", "none")
+		.attr("d", d3.area()
+			.x(d => x2(d))
+			.y0(d => y2(low_by_year[d]))
+			.y1(d => y2(high_by_year[d]))
 		)
 
-
-		// Create the text that travels along the curve of chart
-		var TooltipScatter = d3.select("#tooltipScatter")
+	// Adapted from D3 Graphs website
+	var TooltipScatter = d3.select("#tooltipScatter")
 		.append("div")
 		.style("opacity", 0)
 		.attr("class", "tooltip")
-		
 
+
+	// Adapted from D3 Graphs website
 	avgline = svg2.append("path")
 		.datum(Object.keys(runtimes_by_year))
 		.attr("fill", "none")
@@ -124,62 +120,63 @@ function updateScatter(m) {
 			.x(function(d) { return x2(d) })
 			.y(function(d) { return y2(runtimes_by_year[d]) })
 		);
-		
-		
-// Create the circle that travels along the curve of chart
-  var focus = svg2
-	.append('g')
-	.append('circle')
-	  .style("fill", "black")
-	  .attr("stroke", "black")
-	  .attr('r', 5)
-	  .style("opacity", 0)
-	  
-	  // What happens when the mouse move -> show the annotations at the right positions.
-		function mouseoverScatter() {
-		  focus.style("opacity", 1)
-		  TooltipScatter.style("opacity",1)
-		}
-	  
-		function mousemoveScatter(d) {
-		  // recover coordinate we need
-		  var x0 = parseInt(x2.invert(d3.mouse(this)[0]));
-		  arr = Object.keys(runtimes_by_year).map(y => parseInt(y))
-		  var i = d3.bisect(arr, x0);
-		  selectedData = Object.keys(runtimes_by_year)[i]
-		  focus
+
+
+	// Create the circle that travels along the curve of chart
+	var focus = svg2
+		.append('g')
+		.append('circle')
+		.style("fill", "black")
+		.attr("stroke", "black")
+		.attr('r', 5)
+		.style("opacity", 0)
+
+	// What happens when the mouse move -> show the annotations at the right positions.
+	function mouseoverScatter() {
+		focus.style("opacity", 1)
+		TooltipScatter.style("opacity", 1)
+	}
+
+	// Adapted from D3 Graphs website
+	function mousemoveScatter(d) {
+		var x0 = parseInt(x2.invert(d3.mouse(this)[0]));
+		arr = Object.keys(runtimes_by_year).map(y => parseInt(y))
+		var i = d3.bisect(arr, x0);
+		selectedData = Object.keys(runtimes_by_year)[i]
+		focus
 			.attr("cx", x2(selectedData))
 			.attr("cy", y2(runtimes_by_year[selectedData]))
-		  TooltipScatter
+		TooltipScatter
 			.html(`<div><strong>Year:</strong> ${selectedData}</div>
 				<div><strong>Number of Films:</strong> ${countyear[selectedData]}</div>
 				<div><strong>Mean Duration:</strong> ${(Math.round(runtimes_by_year[selectedData] * 10) / 10).toFixed(1)} minutes</div>
 				<div><strong>Std. Deviation:</strong> ${(Math.round(devs_by_year[selectedData] * 10) / 10).toFixed(1)} minutes</div>
 				<div><strong>25<sup>th</sup> Percentile:</strong> ${(Math.round(low_by_year[selectedData] * 10) / 10).toFixed(1)} minutes</div>
 				<div><strong>75<sup>th</sup> Percentile:</strong> ${(Math.round(high_by_year[selectedData] * 10) / 10).toFixed(1)} minutes</div>`)
-			.style("left", (d3.event.pageX-200) + "px")
-			.style("top", (d3.event.pageY-20) + "px")
-		  }
-		function mouseoutScatter() {
-		  focus.style("opacity", 0)
-		  TooltipScatter.style("opacity", 0)
-		}
+			.style("left", (d3.event.pageX - 200) + "px")
+			.style("top", (d3.event.pageY - 20) + "px")
+	}
 
-		// Create a rect on top of the svg area: this rectangle recovers mouse position
-		  svg2
-			.append('rect')
-			.style("fill", "none")
-			.style("pointer-events", "all")
-			.attr('width', graph_2_width)
-			.attr('height', graph_2_height)
-			.on('mouseover', mouseoverScatter)
-			.on('mousemove', mousemoveScatter)
-			.on('mouseout', mouseoutScatter);
+	function mouseoutScatter() {
+		focus.style("opacity", 0)
+		TooltipScatter.style("opacity", 0)
+	}
 
+	// Create a rect on top of the svg area: this rectangle recovers mouse position
+	// Adapted from D3 Graphs website
+	svg2
+		.append('rect')
+		.style("fill", "none")
+		.style("pointer-events", "all")
+		.attr('width', graph_2_width)
+		.attr('height', graph_2_height)
+		.on('mouseover', mouseoverScatter)
+		.on('mousemove', mousemoveScatter)
+		.on('mouseout', mouseoutScatter);
 }
 
 function makeScatter(m) {
-	
+
 	svg2 = d3.select("#graph2")
 		.append("svg")
 		.attr("width", graph_2_width + ml + margin.right)
@@ -187,44 +184,34 @@ function makeScatter(m) {
 		.append("g")
 		.attr("transform",
 			"translate(" + ml + "," + 0 + ")")
-			
-	// Add X axis
+
+	// Adapted from D3 Graphs website
 	x2 = d3.scaleLinear()
 		.range([0, graph_2_width]);
-	
+
 	scatterBottomAxis = svg2.append("g")
 		.attr("transform", `translate(0,` + graph_2_height + ")")
 		.call(d3.axisBottom(x2).tickFormat(d3.format(".0f")));
-	
-	svg2.append("text")
-	.attr("transform", `translate(${graph_2_width / 2}, ${graph_2_height + mb})`)
-	.style("text-anchor", "middle")
-	.attr("fill", "black")
-	.text("Release Year");
-	
-	svg2.append("text")
-	.attr("transform", `translate(${-40}, ${graph_2_height / 2})rotate(-90)`)
-	.style("text-anchor", "middle")
-	.style("width", 20)
-	.attr("fill", "black")
-	.attr("dy", "0em")
-	.text("Duration (min)");
-	
-	// svg2.append("text")
-	// .attr("transform", `translate(${-30}, ${graph_2_height / 2})`)
-	// .style("text-anchor", "end")
-	// .style("width", 20)
-	// .attr("fill", "black")
-	// .attr("dy", "1em")
-	// .text("(min)");
 
-	// Add Y axis
+	svg2.append("text")
+		.attr("transform", `translate(${graph_2_width / 2}, ${graph_2_height + mb})`)
+		.style("text-anchor", "middle")
+		.attr("fill", "black")
+		.text("Release Year");
+
+	svg2.append("text")
+		.attr("transform", `translate(${-40}, ${graph_2_height / 2})rotate(-90)`)
+		.style("text-anchor", "middle")
+		.style("width", 20)
+		.attr("fill", "black")
+		.attr("dy", "0em")
+		.text("Duration (min)");
+
 	y2 = d3.scaleLinear()
 		.range([graph_2_height, 0]);
-		
+
 	scatterLeftAxis = svg2.append("g")
 		.call(d3.axisLeft(y2));
-		
+
 	updateScatter(m);
 }
-  
